@@ -31,9 +31,10 @@ public class PlayerController : MonoBehaviour
 
     void PlayerMovement(){
         transform.Translate(Vector3.up * Time.deltaTime * movementSpeed);
-        transform.Translate(movingDirection * Time.deltaTime * movementSpeed);
         if(transform.position.x > thresholdEndPoint || transform.position.x < -thresholdEndPoint){
             ResetPosition(movingDirection);
+        }else{
+            transform.Translate(movingDirection * Time.deltaTime * movementSpeed);
         }
     }
 
