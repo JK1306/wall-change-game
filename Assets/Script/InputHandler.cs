@@ -6,6 +6,15 @@ using UnityEngine.EventSystems;
 public class InputHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [SerializeField] bool moveRight;
+
+    private void Update() {
+        if(Input.GetKey(KeyCode.A)){
+            PlayerController.instance.moveLEFT();
+        }else if(Input.GetKey(KeyCode.D)){
+            PlayerController.instance.moveRight();
+        }
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         if(moveRight) PlayerController.instance.moveRight();
