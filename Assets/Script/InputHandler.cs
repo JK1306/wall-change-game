@@ -12,6 +12,8 @@ public class InputHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
             PlayerController.instance.moveLEFT();
         }else if(Input.GetKey(KeyCode.D)){
             PlayerController.instance.moveRight();
+        }else{
+            ResetPosition();
         }
     }
 
@@ -23,9 +25,13 @@ public class InputHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        // PlayerController.instance.ResetPosition(
-        //     (moveRight) ? Vector3.right : Vector3.left
-        // );
+        ResetPosition();
+    }
+
+    void ResetPosition(){
+        PlayerController.instance.ResetPosition(
+            (moveRight) ? Vector3.right : Vector3.left
+        );
     }
 
 }

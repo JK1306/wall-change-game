@@ -40,7 +40,7 @@ public class WallSpawnHandler : MonoBehaviour
             wall.transform.SetParent(transform);
 
             this.childWalls.Add(wall);
-
+            this.childWalls.RemoveAt(0);
             Destroy(gameObject.transform.GetChild(0).gameObject);
             // if(lastElement.tag == "RedWall"){
             //     GameController.instance.redPooledGO.Add(lastElement);
