@@ -6,6 +6,7 @@ TagManager:
   tags:
   - BlueWall
   - RedWall
+  - Enemy
   layers:
   - Default
   - TransparentFX

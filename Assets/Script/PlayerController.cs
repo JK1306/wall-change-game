@@ -24,14 +24,15 @@ public class PlayerController : MonoBehaviour
         movingDirection = Vector3.up;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         PlayerMovement();
     }
 
     void PlayerMovement(){
         transform.Translate(Vector3.up * Time.deltaTime * movementSpeed);
-        if(transform.position.x <= thresholdEndPoint && transform.position.x >= -thresholdEndPoint && movingDirection != Vector3.up){
+        if((transform.position.x < thresholdEndPoint && movingDirection == Vector3.right) || (transform.position.x > -thresholdEndPoint && movingDirection == Vector3.left)){
+        // if(transform.position.x <= thresholdEndPoint && transform.position.x >= -thresholdEndPoint && movingDirection != Vector3.up){
             transform.Translate(movingDirection * Time.deltaTime * movementSpeed);
             // ResetPosition(movingDirection);
         }
@@ -51,8 +52,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision other) {
-
+    private void OnTriggerEnter(Collider other) {
+        if(other.gameObject.tag == "Enemy"){
+            gameObject.GetComponent<MeshRenderer>().enabled = false;
+            movementSpeed = 0f;
+        }
     }
 
 }
