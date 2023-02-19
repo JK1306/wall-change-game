@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float verticalMovementSpeed;
     [SerializeField] float thresholdEndPoint;
     [SerializeField] Vector3 movingDirection;
+    [SerializeField] ParticleSystem playerDeathBurst;
     public delegate void MOVERIGHT();
     public delegate void MOVELEFT();
     public MOVERIGHT moveRight;
@@ -56,7 +57,15 @@ public class PlayerController : MonoBehaviour
         if(other.gameObject.tag == "Enemy"){
             gameObject.GetComponent<MeshRenderer>().enabled = false;
             movementSpeed = 0f;
+            GameController.instance.PlayDeathSFX();
+            playerDeathBurst.Play();
+            StartCoroutine(DestroyDeathParticle());
         }
+    }
+
+    IEnumerator DestroyDeathParticle(){
+        yield return new WaitForSeconds(10);
+        Destroy(playerDeathBurst.gameObject);
     }
 
 }
