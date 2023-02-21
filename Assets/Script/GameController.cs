@@ -1,45 +1,72 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
     public static GameController instance;
     public List<GameObject> redPooledGO;
     public List<GameObject> bluePooledGO;
+    [SerializeField] GameState gameState;
 
     [Header("ObstacleHandler")]
     [SerializeField] Transform[] obstacleSpawners;
     [SerializeField] GameObject obstacleSpawnPrefab;
     [SerializeField] ObjectPooling objectPooling;
     List<GameObject> spawnedObstacles;
-    float timer;
+    float obstacleTimer;
 
     [Header("SFX")]
     [SerializeField] AudioClip deathSfx;
+    [SerializeField] AudioSource gameBGM;
+
+    [Header("Player Settings")]
+    [SerializeField] float speedIncreaseTimeIntervalInSec;
+    [SerializeField] float speedIncreaseRate;
+    float playerTimer;
+
+    [Header("Menu Object")]
+    [SerializeField] GameObject mobileInput;
+    [SerializeField] GameObject mainGame;
+    [SerializeField] GameObject startMenu;
+    [SerializeField] GameObject gameMenu;
+
+
+    private void Awake() {
+        if(instance == null){
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }else{
+            Debug.Log("Game object destroyed");
+            Destroy(this.gameObject);
+        }
+    }
 
     void Start()
     {
-        instance = this;
         redPooledGO = new List<GameObject>();
         bluePooledGO = new List<GameObject>();
         spawnedObstacles = new List<GameObject>();
-
         SetTimer();
+        SetupGame();
     }
 
     private void Update() {
-        ObstacleSpawnTimer();
+        if(PlayerController.instance && PlayerController.instance.playerIsAlive){
+            ObstacleSpawnTimer();
+            IncreasePlayerSpeed();
+        }
         DisableObstacles();
     }
 
 #region ObstacleHandler
     void SetTimer(){
-        timer = Random.Range(3, 8);
+        obstacleTimer = Random.Range(3, 8);
     }
 
     void ObstacleSpawnTimer(){
-        if(timer <= 0){
+        if(obstacleTimer <= 0){
             GameObject spawnedObstacle;
             spawnedObstacle = objectPooling.GetObjectFromPool(obstacleSpawnPrefab);
             spawnedObstacle.SetActive(true);
@@ -48,9 +75,9 @@ public class GameController : MonoBehaviour
                 spawnedObstacle
                 // (GameObject)Instantiate(obstacleSpawnPrefab, obstacleSpawners[Random.Range(0, obstacleSpawners.Length)].position, Quaternion.identity)
             );
-            timer = Random.Range(3, 8);
+            obstacleTimer = Random.Range(3, 8);
         }else{
-            timer -= Time.deltaTime;
+            obstacleTimer -= Time.deltaTime;
         }
     }
 
@@ -72,4 +99,47 @@ public class GameController : MonoBehaviour
         gameObject.GetComponent<AudioSource>().Play();
     }
 
+    void IncreasePlayerSpeed(){
+        playerTimer += Time.deltaTime;
+        if(playerTimer > speedIncreaseTimeIntervalInSec){
+            PlayerController.instance.IncreseMovementSpeed(speedIncreaseRate);
+            playerTimer = 0f;
+        }
+    }
+
+    public void GameOver(){
+        gameMenu.SetActive(true);
+    }
+
+#region MenuImplementations
+    void SetupGame(){
+        if(gameState == GameState.Restart){
+            StartGame();
+        }
+    }
+
+    public void RetryGame(){
+        gameState = GameState.Restart;
+        SceneManager.LoadScene(0);
+    }
+
+    public void ManiMenu(){
+        SceneManager.LoadScene(0);
+    }
+
+    public void ExitApplication(){
+        Application.Quit();
+    }
+
+    public void StartGame(){
+        startMenu.SetActive(false);
+        mainGame.SetActive(true);
+        mobileInput.SetActive(true);
+    }
+#endregion
+}
+
+public enum GameState{
+    Start,
+    Restart
 }
