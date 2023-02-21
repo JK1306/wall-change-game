@@ -5,21 +5,30 @@ using UnityEngine.EventSystems;
 
 public class InputHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] bool moveRight;
+    [SerializeField] MovementDirection movementDirection;
 
     private void Update() {
+        // Debug.Log("anyKey : "+Input.anyKey);
+        Debug.Log(Input.anyKey);
+        KeyBoardInputHandler();
+    }
+
+    void KeyBoardInputHandler(){
         if(Input.GetKey(KeyCode.A)){
             PlayerController.instance.moveLEFT();
         }else if(Input.GetKey(KeyCode.D)){
             PlayerController.instance.moveRight();
-        }else{
+        }
+
+        if(!Input.anyKey){
+            Debug.Log("Any ket down is called");
             ResetPosition();
         }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if(moveRight) PlayerController.instance.moveRight();
+        if(movementDirection == MovementDirection.Right) PlayerController.instance.moveRight();
         else PlayerController.instance.moveLEFT();
     }
 
@@ -30,8 +39,13 @@ public class InputHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     void ResetPosition(){
         PlayerController.instance.ResetPosition(
-            (moveRight) ? Vector3.right : Vector3.left
+            (movementDirection == MovementDirection.Right) ? Vector3.right : Vector3.left
         );
     }
 
+}
+
+public enum MovementDirection{
+    Right,
+    Left
 }
