@@ -8,12 +8,13 @@ public class GameController : MonoBehaviour
     public static GameController instance;
     public List<GameObject> redPooledGO;
     public List<GameObject> bluePooledGO;
-    [SerializeField] GameState gameState;
+    [SerializeField] static GameState gameState;
 
     [Header("ObstacleHandler")]
     [SerializeField] Transform[] obstacleSpawners;
     [SerializeField] GameObject obstacleSpawnPrefab;
     [SerializeField] ObjectPooling objectPooling;
+    [SerializeField] float obstacleSpawnDistance;
     List<GameObject> spawnedObstacles;
     float obstacleTimer;
 
@@ -36,7 +37,6 @@ public class GameController : MonoBehaviour
     private void Awake() {
         if(instance == null){
             instance = this;
-            DontDestroyOnLoad(this.gameObject);
         }else{
             Debug.Log("Game object destroyed");
             Destroy(this.gameObject);
@@ -73,7 +73,6 @@ public class GameController : MonoBehaviour
             spawnedObstacle.transform.position = obstacleSpawners[Random.Range(0, obstacleSpawners.Length)].position;
             spawnedObstacles.Add(
                 spawnedObstacle
-                // (GameObject)Instantiate(obstacleSpawnPrefab, obstacleSpawners[Random.Range(0, obstacleSpawners.Length)].position, Quaternion.identity)
             );
             obstacleTimer = Random.Range(3, 8);
         }else{
@@ -85,7 +84,7 @@ public class GameController : MonoBehaviour
         if(spawnedObstacles.Count > 0){
             for (int i=0; i<spawnedObstacles.Count; i++)
             {
-                if(Vector3.Distance(spawnedObstacles[i].transform.position, obstacleSpawners[0].position) >= 10f){
+                if(Vector3.Distance(spawnedObstacles[i].transform.position, obstacleSpawners[0].position) >= obstacleSpawnDistance){
                     objectPooling.AddToPool(spawnedObstacles[i]);
                     spawnedObstacles.RemoveAt(i);
                 }
@@ -95,6 +94,7 @@ public class GameController : MonoBehaviour
 #endregion
 
     public void PlayDeathSFX(){
+        gameBGM.Stop();
         gameObject.GetComponent<AudioSource>().clip = deathSfx;
         gameObject.GetComponent<AudioSource>().Play();
     }
@@ -113,13 +113,13 @@ public class GameController : MonoBehaviour
 
 #region MenuImplementations
     void SetupGame(){
-        if(gameState == GameState.Restart){
+        if(GameHandler.instance.currentGameState == GameState.Restart){
             StartGame();
         }
     }
 
     public void RetryGame(){
-        gameState = GameState.Restart;
+        GameHandler.instance.currentGameState = GameState.Restart;
         SceneManager.LoadScene(0);
     }
 
@@ -132,6 +132,7 @@ public class GameController : MonoBehaviour
     }
 
     public void StartGame(){
+        gameBGM.Play();
         startMenu.SetActive(false);
         mainGame.SetActive(true);
         mobileInput.SetActive(true);
